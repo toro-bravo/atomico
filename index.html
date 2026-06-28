@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ATÓMICO!</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#ffffff;   /* swap to #eae6df for cream */
+    --ink:#000000;
+    --mono:'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    --t:160ms cubic-bezier(.2,.7,.2,1);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%}
+  body{background:var(--paper); color:var(--ink); font-family:var(--mono);
+       overflow:hidden; -webkit-font-smoothing:antialiased}
+  @media (pointer:fine){ body, body *{cursor:none} }
+  .thumb .box video{filter:grayscale(1) contrast(1.04)}  /* only thumbnails B&W; showreel + hover video in color */
+
+  /* ---------- ROUTER ---------- */
+  .view{position:fixed; inset:0; opacity:0; visibility:hidden;
+        transition:opacity var(--t), visibility var(--t)}
+  body[data-view="landing"] #landing,
+  body[data-view="contact"] #contact,
+  body[data-view="work"]    #work{opacity:1; visibility:visible}
+
+  /* ===================== PLATE (landing + contact) ===================== */
+  .plate-wrap{position:absolute; inset:0; display:grid; place-items:center}
+  .plate{text-align:center; line-height:1.95; letter-spacing:.04em;
+         font-size:clamp(12px,1.7vmin,13.5px); width:max-content; transition:opacity 200ms ease}
+  .plate .title{font-size:clamp(15px,2.3vmin,18px); font-weight:700; letter-spacing:.06em}
+  .plate .rows{display:flex; flex-direction:column}
+  .plate .r{display:grid; grid-template-columns:2.5ch 1fr 2.5ch; align-items:baseline;
+            width:30ch; max-width:74vw; margin:0 auto}
+  .plate .r .l{text-align:left; opacity:.5}
+  .plate .r .c{text-align:center}
+  .plate .r .rr{text-align:right; opacity:.5}
+  .nav{font-weight:600; text-decoration:none; color:var(--ink); padding:1px 6px;
+       transition:background var(--t), color var(--t)}
+  .nav:hover{background:var(--ink); color:var(--paper)}
+  .plate .meta{opacity:.55; margin-top:1.4em}
+  .plate .meta a{color:inherit; text-decoration:none}
+  .plate .meta a:hover{text-decoration:underline}
+
+  /* landing showreel on WORK hover */
+  #landing .reel{position:absolute; inset:0; z-index:1; background:#000;
+    opacity:0; visibility:hidden; transition:opacity 260ms ease, visibility 260ms ease}
+  #landing .plate-wrap{z-index:2}
+  body.reel-on #landing .reel{opacity:1; visibility:visible}
+  body.reel-on #landing .plate{opacity:0}
+  .reel video{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
+  .reel-tag{position:absolute; left:0; right:0; bottom:30px; text-align:center;
+    mix-blend-mode:difference; color:#fff; font-size:11px; letter-spacing:.22em}
+
+  /* contact */
+  #contact .plate{text-align:left}
+  #contact .plate .r{grid-template-columns:8ch 1fr; text-align:left; width:auto; margin:0}
+  #contact .lbl{opacity:.5}
+  #contact a.val{color:inherit; text-decoration:none; padding:1px 5px; margin-left:-5px;
+    transition:background var(--t), color var(--t)}
+  #contact a.val:hover{background:var(--ink); color:var(--paper)}
+
+  /* ===================== WORK : contact-sheet + index ===================== */
+  #work{overflow:hidden}
+  #stage{position:absolute; inset:0; z-index:0; background:var(--paper); overflow:hidden}
+  #stage video{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+    opacity:0; transition:opacity 200ms ease}
+  #work.stage-on #stage video{opacity:1}
+  /* hover takeover: video fullscreen, only project info remains */
+  #work.stage-on .wk{opacity:0}
+  #pinfo{position:absolute; left:clamp(20px,3.2vw,40px); bottom:clamp(18px,2.4vh,30px); z-index:4;
+    color:#000; opacity:0; transition:opacity 200ms ease; max-width:60ch; pointer-events:none;
+    text-shadow:0 1px 10px rgba(255,255,255,.6); letter-spacing:.02em}
+  #work.stage-on #pinfo{opacity:1}
+  #pinfo .pt{font-size:13px; font-weight:600}
+  #pinfo .ps{font-size:10px; letter-spacing:.16em; opacity:.9; margin-top:4px}
+
+  .wk{position:absolute; inset:0; z-index:2; padding:clamp(20px,3.2vw,40px);
+      display:flex; flex-direction:column; justify-content:space-between; transition:opacity 200ms ease}
+  .wk-top{display:flex; flex-direction:column; gap:clamp(14px,2vh,22px)}
+  .wk-bottom{display:flex; flex-direction:column; gap:12px; align-items:flex-start}
+
+  .wk-head{color:#000; display:flex; gap:18px; align-items:baseline}
+  .wk-head .nm{font-size:13px; font-weight:700; letter-spacing:.06em; text-decoration:none; color:#000}
+  .wk-head .sub{font-size:10px; letter-spacing:.2em; opacity:.55}
+
+  .sheet{display:flex; flex-wrap:wrap; gap:clamp(10px,1.4vw,18px)}
+  .thumb{display:flex; flex-direction:column; gap:5px; text-decoration:none}
+  .thumb .no{font-size:9px; letter-spacing:.1em; color:#000; opacity:.6}
+  .thumb .box{
+    width:clamp(72px,8.4vw,98px); aspect-ratio:4/3; overflow:hidden;
+    background:#ddd; border:1px solid rgba(0,0,0,.25); position:relative;
+  }
+  .thumb .box video{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
+
+  .caption{color:#000; font-size:10px; letter-spacing:.04em; opacity:.55; max-width:60ch}
+
+  /* project index — black, pinned bottom-left */
+  .index{color:#000; display:flex; flex-direction:column; max-width:560px; width:100%}
+  .ix{display:grid; grid-template-columns:3ch 1fr auto; gap:14px; align-items:baseline;
+      padding:4px 0; text-decoration:none; color:#000; border-bottom:1px solid rgba(0,0,0,.18);
+      transition:padding-left var(--t)}
+  .ix:hover{padding-left:8px}
+  .ix .xn{font-size:10px; opacity:.55}
+  .ix .xt{font-size:12px; letter-spacing:.02em}
+  .ix .xy{font-size:10px; letter-spacing:.12em; opacity:.55; white-space:nowrap}
+
+  .wk-info{color:#000; opacity:.55; font-size:10px; letter-spacing:.18em; text-decoration:none}
+  .wk-info:hover{opacity:1}
+
+  /* ---------- DRAWING CURSOR + PERMANENT INK ---------- */
+  #ink,#cursor{position:fixed; inset:0; pointer-events:none; mix-blend-mode:difference}
+  #ink{z-index:9998}
+  #cursor{z-index:9999}
+  #clr{position:fixed; top:20px; right:22px; z-index:10000;
+    mix-blend-mode:difference; color:#fff; text-decoration:none;
+    font-family:var(--mono); font-size:10px; letter-spacing:.16em; padding:4px 8px; border:1px solid #fff}
+  @media (pointer:coarse){ #ink,#cursor,#clr{display:none} }
+
+  @media (max-width:560px){ .plate .r{width:26ch} .index{max-width:none} }
+</style>
+</head>
+<body data-view="landing">
+
+  <!-- ===================== LANDING ===================== -->
+  <section class="view" id="landing">
+    <div class="reel" id="reel">
+      <!-- real showreel -->
+      <video id="reelvid" muted loop playsinline preload="none"
+             data-src="https://attachments.are.na/47378797/6775c607bb88ddc743e49039c0a6f0a0.mp4?1782677395"></video>
+      <div class="reel-tag">SHOWREEL — CLICK TO ENTER</div>
+    </div>
+    <div class="plate-wrap">
+      <div class="plate">
+        <div class="title"><a href="#" class="nav" data-go="landing" style="padding:0">ATÓMICO!</a></div>
+        <div class="rows" style="margin-top:1.3em">
+          <div class="r"><span class="l">1</span><span class="c">BARCELONA — MADRID</span><span class="rr">1</span></div>
+          <div class="r"><span class="l">2</span><span class="c"><a href="#" class="nav" id="work-link" data-go="work">WORK</a></span><span class="rr">2</span></div>
+          <div class="r"><span class="l">3</span><span class="c"><a href="#" class="nav" data-go="contact">CONTACT</a></span><span class="rr">3</span></div>
+        </div>
+        <div class="meta">+&nbsp;&nbsp;<a href="mailto:hello@atomico.studio">HELLO@ATOMICO.STUDIO</a></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== WORK ===================== -->
+  <section class="view" id="work">
+    <div id="stage"><video id="stagevid" muted loop playsinline preload="none"></video></div>
+    <div class="wk">
+      <div class="wk-top">
+        <div class="wk-head">
+          <a href="#" class="nm" data-go="landing">ATÓMICO!</a>
+          <span class="sub">SELECTED WORK — DIR.</span>
+        </div>
+        <div class="sheet" id="sheet"></div>
+        <div class="caption">Selected work directed by Atómico! — hover to preview, click to watch. Barcelona / Madrid.</div>
+      </div>
+      <div class="wk-bottom">
+        <div class="index" id="index"></div>
+        <a href="#" class="wk-info" data-go="contact">INFO →</a>
+      </div>
+    </div>
+    <div id="pinfo"><div class="pt"></div><div class="ps"></div></div>
+  </section>
+
+  <!-- ===================== CONTACT ===================== -->
+  <section class="view" id="contact">
+    <div class="plate-wrap">
+      <div class="plate">
+        <div class="title" style="margin-bottom:1.2em">ATÓMICO!</div>
+        <div class="rows">
+          <div class="r"><span class="lbl">DIR.</span><span class="val">[ DIRECTOR_01 ] / [ DIRECTOR_02 ]</span></div>
+          <div class="r"><span class="lbl">MAIL</span><a class="val" href="mailto:hello@atomico.studio">HELLO@ATOMICO.STUDIO</a></div>
+          <div class="r"><span class="lbl">INSTA</span><a class="val" href="#">@ATOMICO</a></div>
+          <div class="r"><span class="lbl">LOC.</span><span class="val">BARCELONA — MADRID — ES</span></div>
+        </div>
+        <div class="meta" style="margin-top:1.4em"><a href="#" class="nav" data-go="landing" style="padding:0">← INDEX</a></div>
+      </div>
+    </div>
+  </section>
+
+  <a href="#" id="clr" title="Borrar dibujo — tecla C">CLR</a>
+  <canvas id="ink"></canvas>
+  <canvas id="cursor"></canvas>
+
+<script>
+/* ---------- REAL ATÓMICO! PROJECTS (directed by / film by Atómico) ---------- */
+const PROJECTS = [
+  { n:'01', title:'CORA NOVOA — "No Faith, No Fear"', type:'MUSIC VIDEO',
+    video:'https://attachments.are.na/41258875/20f1de0d81350a5df9a64fbf05a82bad.mp4?1763665851',
+    watch:'https://youtu.be/Rw54TqiWgdY' },
+  { n:'02', title:'CORA NOVOA — "Todo X Ti"', type:'MUSIC VIDEO',
+    video:'https://attachments.are.na/41258880/fa2fde860409be2ce33102d47bb4dd38.mp4?1763665856',
+    watch:'https://youtu.be/r5NWRnzcXAg' },
+  { n:'03', title:'NAIARA — "Celos"', type:'MUSIC VIDEO',
+    video:'https://attachments.are.na/46149927/d80402d3206d170bf42eaedee1529b82.mp4?1778773460',
+    watch:'https://www.youtube.com/watch?v=JEyW7KX_SWM' },
+  { n:'04', title:'TRIQUELL / PACO DELUXE — Visualizers', type:'VISUALIZERS',
+    video:'https://attachments.are.na/41581519/9c48afdbd11f681d9327d18226782616.mov?1764882312',
+    watch:'https://youtu.be/Pryo1J6wNdE' },
+  { n:'05', title:'HYENNAS', type:'VIDEO ART',
+    video:'https://attachments.are.na/41258307/126a0fc66f7b1b2e00d712042e168976.mp4?1763664013',
+    watch:'https://www.instagram.com/p/DHmBNZ_ISKi/' },
+  { n:'06', title:'TRIQUELL — "Ghabbo"', type:'MUSIC VIDEO',
+    video:'https://attachments.are.na/41258516/6afa103494b94c7e90d2800fb3973c6d.mp4?1763664671',
+    watch:'https://youtu.be/t3G3_I1c7Ic' },
+  { n:'07', title:'CAROLINA HERRERA — "Stallion Leather"', type:'BTS',
+    video:'https://attachments.are.na/41812788/c2919ca36ff7189794ff5baf9f4de3af.mp4?1765803833',
+    watch:'https://www.tiktok.com/@carolinaherreraofficial/video/7474980519516605728' },
+  { n:'08', title:'ALICIA VOGEL & MARC GIRÓ — "Arco"', type:'SOCIAL',
+    video:'https://attachments.are.na/41813441/f33ae06c18258c241f18608bcadc7699.mp4?1765806698',
+    watch:'https://galeriamayoral.com/news/99-el-pajaro-esta-en-el-nido-alicia-vogel/' },
+];
+
+/* ---------- ROUTER ---------- */
+document.querySelectorAll('[data-go]').forEach(el=>{
+  el.addEventListener('click',e=>{ e.preventDefault(); go(el.dataset.go); });
+});
+let primed=false;
+function go(view){
+  document.body.dataset.view=view;
+  document.body.classList.remove('reel-on');
+  if(view==='work' && !primed){ primeThumbs(); primed=true; }
+}
+
+/* landing WORK hover -> showreel */
+const reelvid=document.getElementById('reelvid');
+const workLink=document.getElementById('work-link');
+if(workLink){
+  workLink.addEventListener('mouseenter',()=>{
+    if(!reelvid.src) reelvid.src=reelvid.dataset.src;
+    reelvid.play().catch(()=>{});
+    document.body.classList.add('reel-on');
+  });
+  workLink.addEventListener('mouseleave',()=>document.body.classList.remove('reel-on'));
+}
+
+/* ---------- BUILD WORK ---------- */
+const sheet=document.getElementById('sheet');
+const index=document.getElementById('index');
+const work=document.getElementById('work');
+const stage=document.getElementById('stagevid');
+const pinfo=document.getElementById('pinfo');
+const pinfoT=pinfo.querySelector('.pt');
+const pinfoS=pinfo.querySelector('.ps');
+const thumbVids=[];
+
+PROJECTS.forEach(p=>{
+  // contact-sheet thumbnail
+  const t=document.createElement('a');
+  t.className='thumb'; t.href=p.watch; t.target='_blank'; t.rel='noopener';
+  t.innerHTML=`<span class="no">(${p.n})</span><span class="box"><video muted loop playsinline preload="none" data-src="${p.video}"></video></span>`;
+  sheet.appendChild(t);
+  thumbVids.push(t.querySelector('video'));
+
+  // index row
+  const r=document.createElement('a');
+  r.className='ix'; r.href=p.watch; r.target='_blank'; r.rel='noopener';
+  r.innerHTML=`<span class="xn">${p.n}</span><span class="xt">${p.title}</span><span class="xy">${p.type}</span>`;
+  index.appendChild(r);
+
+  const enter=()=>showStage(p);
+  const leave=()=>hideStage();
+  t.addEventListener('mouseenter',enter); t.addEventListener('mouseleave',leave);
+  r.addEventListener('mouseenter',enter); r.addEventListener('mouseleave',leave);
+});
+
+function showStage(p){
+  if(stage.dataset.cur!==p.video){ stage.src=p.video; stage.dataset.cur=p.video; }
+  stage.play().catch(()=>{});
+  pinfoT.textContent='('+p.n+')  '+p.title;
+  pinfoS.textContent=p.type+'  ·  DIR. ATÓMICO!';
+  work.classList.add('stage-on');
+}
+function hideStage(){ work.classList.remove('stage-on'); }
+
+function primeThumbs(){
+  thumbVids.forEach(v=>{
+    if(v.dataset.p) return; v.dataset.p=1;
+    v.muted=true; v.preload='auto';
+    v.addEventListener('loadedmetadata',()=>{
+      const d=v.duration;
+      let target=0.6;                                  // skip black intro frames
+      if(isFinite(d)&&d>0) target=Math.min(Math.max(d*0.12,0.4), d-0.05);
+      const onSeeked=()=>{ v.pause(); v.removeEventListener('seeked',onSeeked); };
+      v.addEventListener('seeked',onSeeked);
+      try{ v.currentTime=target; }catch(e){ /* fallback: leave at 0 */ }
+    },{once:true});
+    v.src=v.dataset.src; v.load();
+  });
+}
+
+/* ---------- DRAWING CROSSHAIR + PERMANENT INK ---------- */
+(function(){
+  const ink=document.getElementById('ink'), cur=document.getElementById('cursor');
+  const ictx=ink.getContext('2d'), cctx=cur.getContext('2d');
+  const dpr=Math.min(devicePixelRatio||1,2);
+  function size(c,ctx){c.width=innerWidth*dpr;c.height=innerHeight*dpr;
+    c.style.width=innerWidth+'px';c.style.height=innerHeight+'px';ctx.setTransform(dpr,0,0,dpr,0,0);}
+  function resize(){
+    const s=document.createElement('canvas');s.width=ink.width;s.height=ink.height;
+    s.getContext('2d').drawImage(ink,0,0);
+    size(ink,ictx);size(cur,cctx);
+    ictx.save();ictx.setTransform(1,0,0,1,0,0);ictx.drawImage(s,0,0);ictx.restore();
+  }
+  size(ink,ictx);size(cur,cctx);addEventListener('resize',resize);
+
+  let mx=-100,my=-100,have=false,last=null;
+  addEventListener('mousemove',e=>{
+    const x=e.clientX,y=e.clientY;
+    if(have&&last){ictx.strokeStyle='#fff';ictx.lineWidth=1.4;ictx.lineCap='round';ictx.lineJoin='round';
+      ictx.beginPath();ictx.moveTo(last.x,last.y);ictx.lineTo(x,y);ictx.stroke();}
+    mx=x;my=y;have=true;last={x,y};
+  });
+  addEventListener('mouseout',()=>{have=false;last=null;});
+  addEventListener('mouseover',()=>{have=true;});
+  function clear(){ictx.clearRect(0,0,innerWidth,innerHeight);}
+  addEventListener('keydown',e=>{if(e.key==='c'||e.key==='C'||e.key==='Backspace')clear();});
+  document.getElementById('clr').addEventListener('click',e=>{e.preventDefault();clear();});
+
+  function frame(){
+    cctx.clearRect(0,0,innerWidth,innerHeight);
+    if(have){cctx.strokeStyle='#fff';cctx.lineWidth=1;const s=9,g=2;
+      cctx.beginPath();
+      cctx.moveTo(mx-s,my);cctx.lineTo(mx-g,my);cctx.moveTo(mx+g,my);cctx.lineTo(mx+s,my);
+      cctx.moveTo(mx,my-s);cctx.lineTo(mx,my-g);cctx.moveTo(mx,my+g);cctx.lineTo(mx,my+s);
+      cctx.stroke();}
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
