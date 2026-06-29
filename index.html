@@ -124,7 +124,7 @@
   .wk-info:hover{opacity:1}
 
   /* ---------- DRAWING CURSOR + PERMANENT INK ---------- */
-  #ink,#cursor{position:fixed; inset:0; pointer-events:none}
+  #ink,#cursor{position:fixed; inset:0; pointer-events:none; mix-blend-mode:difference}
   #ink{z-index:9998}
   #cursor{z-index:9999}
   #clr{position:fixed; top:20px; right:22px; z-index:10000;
@@ -183,8 +183,8 @@
       <div class="plate">
         <div class="title" style="margin-bottom:1.2em">ATÓMICO!</div>
         <div class="rows">
-          <div class="r"><span class="lbl">MÓNACO</span><span class="val"><a href="https://www.instagram.com/monaco_______________/" target="_blank" rel="noopener">INSTAGRAM</a><span class="sep">·</span><a href="https://mobymonaco.cargo.site/" target="_blank" rel="noopener">PORTFOLIO</a></span></div>
-          <div class="r"><span class="lbl">TORO</span><span class="val"><a href="https://www.instagram.com/toro.bm/" target="_blank" rel="noopener">INSTAGRAM</a><span class="sep">·</span><a href="https://toro-bravo.github.io/index" target="_blank" rel="noopener">PORTFOLIO</a></span></div>
+          <div class="r"><span class="lbl">MÓNACO</span><span class="val"><a href="https://www.instagram.com/monaco_______________/" target="_blank" rel="noopener">INSTAGRAM</a><span class="sep">·</span><a href="https://mobymonaco.cargo.site/" target="_blank" rel="noopener">WEB</a></span></div>
+          <div class="r"><span class="lbl">TORO</span><span class="val"><a href="https://www.instagram.com/toro.bm/" target="_blank" rel="noopener">INSTAGRAM</a><span class="sep">·</span><a href="https://toro-bravo.github.io/index" target="_blank" rel="noopener">WEB</a></span></div>
           <div class="r"><span class="lbl">MAIL</span><span class="val"><a href="mailto:unaexplosionatomica@gmail.com">unaexplosionatomica@gmail.com</a></span></div>
           <div class="r"><span class="lbl">INSTA</span><span class="val"><a href="https://www.instagram.com/_.atomico/" target="_blank" rel="noopener">@_.atomico</a></span></div>
           <div class="r"><span class="lbl">LOC.</span><span class="val">BARCELONA — MADRID — ES</span></div>
@@ -342,7 +342,7 @@ function primeThumbs(){
   let mx=-100,my=-100,have=false,last=null;
   addEventListener('mousemove',e=>{
     const x=e.clientX,y=e.clientY;
-    if(have&&last){ictx.strokeStyle='#ff0000';ictx.lineWidth=1.4;ictx.lineCap='round';ictx.lineJoin='round';
+    if(have&&last){ictx.strokeStyle='#fff';ictx.lineWidth=1.4;ictx.lineCap='round';ictx.lineJoin='round';
       ictx.beginPath();ictx.moveTo(last.x,last.y);ictx.lineTo(x,y);ictx.stroke();}
     mx=x;my=y;have=true;last={x,y};
   });
@@ -354,7 +354,7 @@ function primeThumbs(){
 
   function frame(){
     cctx.clearRect(0,0,innerWidth,innerHeight);
-    if(have){cctx.strokeStyle='#ff0000';cctx.lineWidth=1;const s=9,g=2;
+    if(have){cctx.strokeStyle='#fff';cctx.lineWidth=1;const s=9,g=2;
       cctx.beginPath();
       cctx.moveTo(mx-s,my);cctx.lineTo(mx-g,my);cctx.moveTo(mx+g,my);cctx.lineTo(mx+s,my);
       cctx.moveTo(mx,my-s);cctx.lineTo(mx,my-g);cctx.moveTo(mx,my+g);cctx.lineTo(mx,my+s);
