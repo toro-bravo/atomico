@@ -101,6 +101,15 @@
     color:#fff; opacity:0; transition:opacity 200ms ease; max-width:60ch; pointer-events:none;
     text-shadow:0 1px 8px rgba(0,0,0,.4); letter-spacing:0}
   #work.stage-on #pinfo{opacity:1}
+  /* móvil: 1er tap = vídeo a pantalla completa, 2º tap = link */
+  #tap{position:absolute; inset:0; z-index:5; display:none}
+  #work.m-open #tap{display:block}
+  #work.m-open .wk{pointer-events:none}
+  #mclose{position:absolute; z-index:6; top:clamp(22px,3.4vh,36px); left:clamp(20px,3vw,40px); display:none; padding:6px 10px 10px 0;
+    color:#fff; text-decoration:none; font-size:12.5px; text-shadow:0 1px 8px rgba(0,0,0,.4)}
+  #work.m-open #mclose{display:block}
+  #pinfo .ph{display:none; font-size:11px; font-style:italic; opacity:.85; margin-top:6px}
+  #work.m-open #pinfo .ph{display:block}
   #pinfo .pt{font-size:13px; font-weight:600}
   #pinfo .ps{font-size:11px; letter-spacing:.01em; opacity:.9; margin-top:4px; font-style:italic}
 
@@ -197,7 +206,9 @@
         <a href="#" class="wk-info" data-go="contact">INFO →</a>
       </div>
     </div>
-    <div id="pinfo"><div class="pt"></div><div class="ps"></div></div>
+    <div id="pinfo"><div class="pt"></div><div class="ps"></div><div class="ph">tap again to watch ↗</div></div>
+    <div id="tap"></div>
+    <a href="#" id="mclose">← Back</a>
   </section>
 
   <!-- ===================== CONTACT ===================== -->
@@ -266,6 +277,7 @@ let primed=false;
 function go(view){
   document.body.dataset.view=view;
   document.body.classList.remove('reel-on');
+  if(typeof closeMobile==='function' && view!=='work') closeMobile();
   if(view==='work' && !primed){ primeThumbs(); primed=true; }
 }
 
@@ -290,6 +302,7 @@ const pinfo=document.getElementById('pinfo');
 const pinfoT=pinfo.querySelector('.pt');
 const pinfoS=pinfo.querySelector('.ps');
 const thumbVids=[];
+const TOUCH=matchMedia('(hover: none)').matches;
 sheet.style.setProperty('--n',PROJECTS.length);
 sheet.style.setProperty('--half',Math.ceil(PROJECTS.length/2));
 
@@ -307,11 +320,27 @@ PROJECTS.forEach(p=>{
   r.innerHTML=`<span class="xn">${p.n}</span><span class="xt">${p.title}</span><span class="xy">${p.type}</span>`;
   index.appendChild(r);
 
-  const enter=()=>showStage(p);
-  const leave=()=>hideStage();
-  t.addEventListener('mouseenter',enter); t.addEventListener('mouseleave',leave);
-  r.addEventListener('mouseenter',enter); r.addEventListener('mouseleave',leave);
+  if(TOUCH){
+    const open=e=>{ e.preventDefault(); openMobile(p); };
+    t.addEventListener('click',open); r.addEventListener('click',open);
+  }else{
+    const enter=()=>showStage(p);
+    const leave=()=>hideStage();
+    t.addEventListener('mouseenter',enter); t.addEventListener('mouseleave',leave);
+    r.addEventListener('mouseenter',enter); r.addEventListener('mouseleave',leave);
+  }
 });
+
+/* móvil: el primer tap abre el vídeo, el segundo abre el link */
+let mcur=null;
+function openMobile(p){ mcur=p; showStage(p); work.classList.add('m-open'); try{ history.pushState({m:1},''); }catch(e){} }
+function closeMobile(){ mcur=null; work.classList.remove('m-open'); hideStage(); }
+document.getElementById('tap').addEventListener('click',()=>{ if(mcur) window.open(mcur.watch,'_blank','noopener'); });
+document.getElementById('mclose').addEventListener('click',e=>{
+  e.preventDefault(); e.stopPropagation();
+  if(history.state && history.state.m) history.back(); else closeMobile();
+});
+addEventListener('popstate',()=>{ if(work.classList.contains('m-open')) closeMobile(); });   // botón atrás del móvil
 
 function showStage(p){
   const start=p.startAt||0;
@@ -347,7 +376,7 @@ function primeThumbs(){
       v.addEventListener('seeked',onSeeked);
       try{ v.currentTime=target; }catch(e){ /* fallback: leave at 0 */ }
     },{once:true});
-    v.src=v.dataset.src; v.load();
+    v.src=v.dataset.src+'#t='+(v.dataset.poster!==undefined ? Math.max(parseFloat(v.dataset.poster),0.05) : 0.6); v.load();  // #t: iOS pinta el fotograma
   });
 }
 
