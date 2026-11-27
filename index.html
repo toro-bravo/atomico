@@ -113,11 +113,15 @@
   .wk-head .nm{font-size:14px; font-weight:700; letter-spacing:.02em; text-decoration:none; color:#000}
   .wk-head .sub{font-size:10px; letter-spacing:.04em; opacity:.55}
 
-  .sheet{display:flex; flex-wrap:wrap; gap:clamp(10px,1.4vw,18px)}
+  /* contact-sheet: una fila en desktop, dos en tablet, 4 columnas en móvil (--n lo pone el JS) */
+  .sheet{display:grid; grid-template-columns:repeat(var(--n,12),minmax(0,1fr)); gap:clamp(10px,1.4vw,18px);
+         max-width:calc(var(--n,12) * 98px + (var(--n,12) - 1) * 18px)}
+  @media (max-width:1100px){ .sheet{grid-template-columns:repeat(var(--half,6),minmax(0,1fr)); max-width:calc(var(--half,6) * 104px + (var(--half,6) - 1) * 14px)} }
+  @media (max-width:560px){ .sheet{grid-template-columns:repeat(4,minmax(0,1fr))} }
   .thumb{display:flex; flex-direction:column; gap:5px; text-decoration:none}
   .thumb .no{font-size:9px; letter-spacing:.02em; color:#000; opacity:.6}
   .thumb .box{
-    width:clamp(72px,8.4vw,98px); aspect-ratio:4/3; overflow:hidden;
+    width:100%; aspect-ratio:4/3; overflow:hidden;
     background:#ddd; border:1px solid rgba(0,0,0,.25); position:relative;
   }
   .thumb .box video{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
@@ -222,33 +226,36 @@ const PROJECTS = [
   { n:'02', title:'CUPRA — "Own The Wheel"', type:'COMERCIAL', posterAt:25,
     video:'https://attachments.are.na/43706515/54565c766d1da3d54bcfd38781b0e14e.mp4?1771405668',
     watch:'https://www.instagram.com/p/DUsyBKmCCC2/?img_index=1' },
-  { n:'03', title:'LUCHO RK — "Retruca"', type:'MUSIC VIDEO',
+  { n:'03', title:'A.CHAL x HIGHXTAR', type:'EDITORIAL',
+    video:'https://attachments.are.na/53355175/177c2082a74107d4962a61523322b3d6.mp4?1795778857',
+    watch:'https://attachments.are.na/53355175/177c2082a74107d4962a61523322b3d6.mp4?1795778857' },
+  { n:'04', title:'GNG.LA — "Mesh Drop"', type:'SOCIAL',
+    video:'https://attachments.are.na/41813336/f6d4834845d90d5a74d93a529a132cb0.mp4?1765806472',
+    watch:'https://www.instagram.com/p/DQKZxI7AuQA/' },
+  { n:'05', title:'LUCHO RK — "Retruca"', type:'MUSIC VIDEO',
     video:'https://attachments.are.na/51271121/ef6abad78be1bd200ec59ff080e9cfdb.mp4?1791751756',
     watch:'https://www.youtube.com/watch?v=B1-YKd0_BH4' },
-  { n:'04', title:'BALMAIN HAIR — Campaign 26', type:'COMERCIAL', dir:'DIR. MÓNACO @ ATÓMICO!',
+  { n:'06', title:'BALMAIN HAIR — Campaign 26', type:'COMERCIAL', dir:'DIR. MÓNACO @ ATÓMICO!',
     video:'https://attachments.are.na/53354324/bcca33f9fa0de0d1f794329c2adedd72.mp4?1795777807',
-    watch:'https://attachments.are.na/53354324/bcca33f9fa0de0d1f794329c2adedd72.mp4?1795777807' },
-  { n:'05', title:'NAIARA — "Celos"', type:'MUSIC VIDEO',
+    watch:'https://www.instagram.com/p/DgF1zC3AMQJ/' },
+  { n:'07', title:'NAIARA — "Celos"', type:'MUSIC VIDEO',
     video:'https://attachments.are.na/46149927/d80402d3206d170bf42eaedee1529b82.mp4?1778773460',
     watch:'https://www.youtube.com/watch?v=JEyW7KX_SWM' },
-  { n:'06', title:'HYENNAS', type:'VIDEO ART', posterAt:0,
+  { n:'08', title:'HYENNAS', type:'VIDEO ART', posterAt:0,
     video:'https://attachments.are.na/41258307/126a0fc66f7b1b2e00d712042e168976.mp4?1763664013',
     watch:'https://www.instagram.com/p/DHmBNZ_ISKi/' },
-  { n:'07', title:'CORA NOVOA — "No Faith, No Fear"', type:'MUSIC VIDEO', posterAt:0,
+  { n:'09', title:'CORA NOVOA — "No Faith, No Fear"', type:'MUSIC VIDEO', posterAt:0,
     video:'https://attachments.are.na/41258875/20f1de0d81350a5df9a64fbf05a82bad.mp4?1763665851',
     watch:'https://youtu.be/Rw54TqiWgdY' },
-  { n:'08', title:'CORA NOVOA — "Todo X Ti"', type:'MUSIC VIDEO', posterAt:9, startAt:6,
+  { n:'10', title:'CORA NOVOA — "Todo X Ti"', type:'MUSIC VIDEO', posterAt:9, startAt:6,
     video:'https://attachments.are.na/41258880/fa2fde860409be2ce33102d47bb4dd38.mp4?1763665856',
     watch:'https://youtu.be/r5NWRnzcXAg' },
-  { n:'09', title:'FLAMAID — "Safety has never been so scary"', type:'COMERCIAL',
-    video:'https://attachments.are.na/41258250/0cbd36c371f88cb56146e5bec2408ba6.mp4?1763663851',
-    watch:'https://www.instagram.com/reel/DQXLliLjTFH/' },
-  { n:'10', title:'TRIQUELL / PACO DELUXE — Visualizers', type:'VISUALIZERS', posterAt:7,
+  { n:'11', title:'TRIQUELL / PACO DELUXE — Visualizers', type:'VISUALIZERS', posterAt:7,
     video:'https://attachments.are.na/41581519/9c48afdbd11f681d9327d18226782616.mov?1764882312',
     watch:'https://youtu.be/Pryo1J6wNdE' },
-  { n:'11', title:'ALICIA VOGEL & MARC GIRÓ — "Arco"', type:'SOCIAL', posterAt:0.5,
-    video:'https://attachments.are.na/41813441/f33ae06c18258c241f18608bcadc7699.mp4?1765806698',
-    watch:'https://galeriamayoral.com/news/99-el-pajaro-esta-en-el-nido-alicia-vogel/' },
+  { n:'12', title:'FLAMAID — "Safety has never been so scary"', type:'COMERCIAL',
+    video:'https://attachments.are.na/41258250/0cbd36c371f88cb56146e5bec2408ba6.mp4?1763663851',
+    watch:'https://www.instagram.com/reel/DQXLliLjTFH/' },
 ];
 
 /* ---------- ROUTER ---------- */
@@ -283,6 +290,8 @@ const pinfo=document.getElementById('pinfo');
 const pinfoT=pinfo.querySelector('.pt');
 const pinfoS=pinfo.querySelector('.ps');
 const thumbVids=[];
+sheet.style.setProperty('--n',PROJECTS.length);
+sheet.style.setProperty('--half',Math.ceil(PROJECTS.length/2));
 
 PROJECTS.forEach(p=>{
   // contact-sheet thumbnail
@@ -342,7 +351,7 @@ function primeThumbs(){
   });
 }
 
-/* ---------- DRAWING CROSSHAIR + FADING INK (3s) ---------- */
+/* ---------- DRAWING CROSSHAIR + FADING PIXEL TRAIL (3s) ---------- */
 (function(){
   const ink=document.getElementById('ink'), cur=document.getElementById('cursor');
   const ictx=ink.getContext('2d'), cctx=cur.getContext('2d');
@@ -351,16 +360,23 @@ function primeThumbs(){
     c.style.width=innerWidth+'px';c.style.height=innerHeight+'px';ctx.setTransform(dpr,0,0,dpr,0,0);}
   function resize(){ size(ink,ictx); size(cur,cctx); }
   const LIFE=3000;               // ms hasta que el trazo desaparece del todo
-  let segs=[];                   // {x1,y1,x2,y2,t}
+  const STEP=5, DOT=2;           // separación entre puntos y tamaño del píxel (px)
+  let segs=[];                   // puntos {x,y,t}
+  let carry=0;                   // distancia acumulada desde el último punto
   size(ink,ictx);size(cur,cctx);addEventListener('resize',resize);
 
   let mx=-100,my=-100,have=false,last=null;
   addEventListener('mousemove',e=>{
     const x=e.clientX,y=e.clientY;
-    if(have&&last) segs.push({x1:last.x,y1:last.y,x2:x,y2:y,t:performance.now()});
+    if(have&&last){
+      const dx=x-last.x, dy=y-last.y, d=Math.hypot(dx,dy), t=performance.now();
+      let k=STEP-carry;
+      while(k<=d){ segs.push({x:last.x+dx*k/d, y:last.y+dy*k/d, t}); k+=STEP; }
+      carry=d-(k-STEP);
+    }
     mx=x;my=y;have=true;last={x,y};
   });
-  addEventListener('mouseout',e=>{if(!e.relatedTarget){have=false;last=null;}});  // solo al salir de la ventana
+  addEventListener('mouseout',e=>{if(!e.relatedTarget){have=false;last=null;carry=0;}});  // solo al salir de la ventana
   addEventListener('mouseover',()=>{have=true;});
   function clear(){segs=[];ictx.clearRect(0,0,innerWidth,innerHeight);}
   addEventListener('keydown',e=>{if(e.key==='c'||e.key==='C'||e.key==='Backspace')clear();});
@@ -370,10 +386,10 @@ function primeThumbs(){
     const now=performance.now();
     while(segs.length && now-segs[0].t>=LIFE) segs.shift();
     ictx.clearRect(0,0,innerWidth,innerHeight);
-    ictx.strokeStyle='#fff';ictx.lineWidth=1.4;ictx.lineCap='round';ictx.lineJoin='round';
+    ictx.fillStyle='#fff';
     for(const sg of segs){
       ictx.globalAlpha=1-(now-sg.t)/LIFE;
-      ictx.beginPath();ictx.moveTo(sg.x1,sg.y1);ictx.lineTo(sg.x2,sg.y2);ictx.stroke();
+      ictx.fillRect(Math.round(sg.x-DOT/2),Math.round(sg.y-DOT/2),DOT,DOT);
     }
     ictx.globalAlpha=1;
     cctx.clearRect(0,0,innerWidth,innerHeight);
