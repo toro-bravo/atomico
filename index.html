@@ -7,7 +7,7 @@
 <link rel="icon" type="image/png" href="https://d2w9rnfcy7mm78.cloudfront.net/47385946/original_b51d44561a8224fefecb68739e11aeee.png?1782713817?bc=0">
 <link rel="apple-touch-icon" href="https://d2w9rnfcy7mm78.cloudfront.net/47385946/original_b51d44561a8224fefecb68739e11aeee.png?1782713817?bc=0">
 <meta property="og:title" content="ATÓMICO!">
-<meta property="og:description" content="Directing duo — Barcelona / Madrid.">
+<meta property="og:description" content="Directors / creative duo. Barcelona based.">
 <meta property="og:image" content="https://d2w9rnfcy7mm78.cloudfront.net/47385946/original_b51d44561a8224fefecb68739e11aeee.png?1782713817?bc=0">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -66,6 +66,7 @@
   #contact .plate{text-align:left}
   #contact .plate .r{grid-template-columns:8ch 1fr; text-align:left; width:auto; margin:0}
   #contact .lbl{opacity:.5}
+  #contact .about{width:46ch; max-width:84vw; line-height:1.7; margin-bottom:2.2em; text-wrap:pretty}
   #contact a.val, #contact .val a{color:inherit; text-decoration:none; padding:1px 5px; margin-left:-5px;
     transition:background var(--t), color var(--t)}
   #contact a.val:hover, #contact .val a:hover{background:var(--ink); color:var(--paper)}
@@ -149,7 +150,7 @@
       <div class="plate">
         <div class="title"><a href="#" data-go="landing" style="display:inline-block;line-height:0"><img class="logo" src="https://d2w9rnfcy7mm78.cloudfront.net/47385806/original_132f259ef0c6633b6bb930b772607159.png?1782713185?bc=0" alt="ATÓMICO!"></a></div>
         <div class="rows" style="margin-top:1.3em">
-          <div class="r"><span class="l">1</span><span class="c">BARCELONA — MADRID</span><span class="rr">1</span></div>
+          <div class="r"><span class="l">1</span><span class="c">BARCELONA BASED</span><span class="rr">1</span></div>
           <div class="r"><span class="l">2</span><span class="c"><a href="#" class="nav" id="work-link" data-go="work">WORK</a></span><span class="rr">2</span></div>
           <div class="r"><span class="l">3</span><span class="c"><a href="#" class="nav" data-go="contact">CONTACT</a></span><span class="rr">3</span></div>
         </div>
@@ -181,13 +182,14 @@
   <section class="view" id="contact">
     <div class="plate-wrap">
       <div class="plate">
+        <p class="about">Atómico! is a directors / creative duo formed by director and photographer Mónaco &amp; director and postproduction artist Toro.</p>
         <div class="title" style="margin-bottom:1.2em">ATÓMICO!</div>
         <div class="rows">
           <div class="r"><span class="lbl">MÓNACO</span><span class="val"><a href="https://www.instagram.com/monaco_______________/" target="_blank" rel="noopener">INSTAGRAM</a><span class="sep">·</span><a href="https://mobymonaco.cargo.site/" target="_blank" rel="noopener">WEB</a></span></div>
           <div class="r"><span class="lbl">TORO</span><span class="val"><a href="https://www.instagram.com/toro.bm/" target="_blank" rel="noopener">INSTAGRAM</a><span class="sep">·</span><a href="https://toro-bravo.github.io/index" target="_blank" rel="noopener">WEB</a></span></div>
           <div class="r"><span class="lbl">MAIL</span><span class="val"><a href="mailto:unaexplosionatomica@gmail.com">unaexplosionatomica@gmail.com</a></span></div>
           <div class="r"><span class="lbl">INSTA</span><span class="val"><a href="https://www.instagram.com/_.atomico/" target="_blank" rel="noopener">@_.atomico</a></span></div>
-          <div class="r"><span class="lbl">LOC.</span><span class="val">BARCELONA — MADRID — ES</span></div>
+          <div class="r"><span class="lbl">LOC.</span><span class="val">BARCELONA BASED</span></div>
         </div>
         <div class="meta" style="margin-top:1.4em"><a href="#" class="nav" data-go="landing" style="padding:0">← INDEX</a></div>
       </div>
@@ -327,35 +329,40 @@ function primeThumbs(){
   });
 }
 
-/* ---------- DRAWING CROSSHAIR + PERMANENT INK ---------- */
+/* ---------- DRAWING CROSSHAIR + FADING INK (3s) ---------- */
 (function(){
   const ink=document.getElementById('ink'), cur=document.getElementById('cursor');
   const ictx=ink.getContext('2d'), cctx=cur.getContext('2d');
   const dpr=Math.min(devicePixelRatio||1,2);
   function size(c,ctx){c.width=innerWidth*dpr;c.height=innerHeight*dpr;
     c.style.width=innerWidth+'px';c.style.height=innerHeight+'px';ctx.setTransform(dpr,0,0,dpr,0,0);}
-  function resize(){
-    const s=document.createElement('canvas');s.width=ink.width;s.height=ink.height;
-    s.getContext('2d').drawImage(ink,0,0);
-    size(ink,ictx);size(cur,cctx);
-    ictx.save();ictx.setTransform(1,0,0,1,0,0);ictx.drawImage(s,0,0);ictx.restore();
-  }
+  function resize(){ size(ink,ictx); size(cur,cctx); }
+  const LIFE=3000;               // ms hasta que el trazo desaparece del todo
+  let segs=[];                   // {x1,y1,x2,y2,t}
   size(ink,ictx);size(cur,cctx);addEventListener('resize',resize);
 
   let mx=-100,my=-100,have=false,last=null;
   addEventListener('mousemove',e=>{
     const x=e.clientX,y=e.clientY;
-    if(have&&last){ictx.strokeStyle='#fff';ictx.lineWidth=1.4;ictx.lineCap='round';ictx.lineJoin='round';
-      ictx.beginPath();ictx.moveTo(last.x,last.y);ictx.lineTo(x,y);ictx.stroke();}
+    if(have&&last) segs.push({x1:last.x,y1:last.y,x2:x,y2:y,t:performance.now()});
     mx=x;my=y;have=true;last={x,y};
   });
-  addEventListener('mouseout',()=>{have=false;last=null;});
+  addEventListener('mouseout',e=>{if(!e.relatedTarget){have=false;last=null;}});  // solo al salir de la ventana
   addEventListener('mouseover',()=>{have=true;});
-  function clear(){ictx.clearRect(0,0,innerWidth,innerHeight);}
+  function clear(){segs=[];ictx.clearRect(0,0,innerWidth,innerHeight);}
   addEventListener('keydown',e=>{if(e.key==='c'||e.key==='C'||e.key==='Backspace')clear();});
   document.getElementById('clr').addEventListener('click',e=>{e.preventDefault();clear();});
 
   function frame(){
+    const now=performance.now();
+    while(segs.length && now-segs[0].t>=LIFE) segs.shift();
+    ictx.clearRect(0,0,innerWidth,innerHeight);
+    ictx.strokeStyle='#fff';ictx.lineWidth=1.4;ictx.lineCap='round';ictx.lineJoin='round';
+    for(const sg of segs){
+      ictx.globalAlpha=1-(now-sg.t)/LIFE;
+      ictx.beginPath();ictx.moveTo(sg.x1,sg.y1);ictx.lineTo(sg.x2,sg.y2);ictx.stroke();
+    }
+    ictx.globalAlpha=1;
     cctx.clearRect(0,0,innerWidth,innerHeight);
     if(have){cctx.strokeStyle='#fff';cctx.lineWidth=1;const s=9,g=2;
       cctx.beginPath();
